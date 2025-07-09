@@ -271,7 +271,7 @@
         const quote = lalQuotes[Math.floor(Math.random() * lalQuotes.length)];
         const overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
-        overlay.innerHTML = `<div style='font-size:200px;'>🧍‍♀️</div><div style='margin-top:20px;font-size:28px;'>${quote}</div><div style='font-size:16px;margin-top:10px;color:#888;'>(Her shirt reads: \"We Need Money to Eat!\")</div>`;
+        overlay.innerHTML = `<div style='font-size:200px;'>🧍‍♀️</div><div style='margin-top:20px;font-size:48px;'>${quote}</div><div style='font-size:16px;margin-top:10px;color:#888;'>(Her shirt reads: \"We Need Money to Eat!\")</div>`;
         playSound("lalSound");
         setTimeout(() => overlay.style.display = "none", 5000);
       } else {
@@ -280,7 +280,7 @@
         const story = traumaStories[(trauma - 1) % traumaStories.length];
         const overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
-        overlay.innerHTML = `<div style='font-size:120px;'>🧒</div><div style='margin-top:20px;font-size:24px;'>Billy: “This reminds me of when ${story}”</div>`;
+        overlay.innerHTML = `<div style='font-size:120px;'>🧒</div><div style='margin-top:20px;font-size:48px;'>Billy: “This reminds me of when ${story}”</div>`;
         playSound("scream");
         setTimeout(() => overlay.style.display = "none", 6000);
 
