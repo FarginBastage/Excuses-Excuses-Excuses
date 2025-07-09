@@ -4,14 +4,12 @@
   <meta charset="UTF-8">
   <title>Excuse Clicker: Jesse's Justice</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
     body {
       margin: 0;
       padding: 0;
-      background: #000;
-      color: #0f0;
-      font-family: 'Press Start 2P', monospace;
+      background: #111;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,7 +19,7 @@
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 36px;
       margin-top: 30px;
     }
 
@@ -38,12 +36,12 @@
     .sprite {
       width: 160px;
       height: 160px;
-      background-color: #444;
+      background-color: #333;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 60px;
-      border: 4px solid #0f0;
+      font-size: 80px;
+      border: 4px solid #ccc;
       transition: transform 0.3s ease-in-out;
     }
 
@@ -53,7 +51,7 @@
 
     .straightToJail {
       position: absolute;
-      font-size: 28px;
+      font-size: 32px;
       color: red;
       font-weight: bold;
       top: 50%;
@@ -74,19 +72,19 @@
       margin: 15px;
       padding: 20px;
       max-width: 95%;
-      background: #111;
-      border: 3px dashed #0ff;
-      color: #0ff;
-      font-size: 16px;
+      background: #222;
+      border: 2px solid #888;
+      color: #f0f0f0;
+      font-size: 18px;
     }
 
     button {
       margin: 10px;
       font-size: 24px;
       padding: 30px 60px;
-      background-color: #222;
-      border: 4px solid #0f0;
-      color: #0f0;
+      background-color: #444;
+      border: 4px solid #888;
+      color: #f0f0f0;
       cursor: pointer;
     }
 
@@ -97,13 +95,13 @@
       width: 100vw;
       height: 100vh;
       background: #000;
-      color: #f0f;
+      color: #f0f0f0;
       z-index: 999;
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 24px;
       text-align: center;
     }
 
@@ -126,7 +124,7 @@
 
   <div id="gameArea">
     <div class="sprite" id="jesse">🧑‍⚖️</div>
-    <div class="sprite" id="client">🧍</div>
+    <div class="sprite" id="client">🧍‍♀️</div>
   </div>
 
   <div id="excuseBox">Client: "My cousin borrowed the money."</div>
@@ -134,177 +132,30 @@
 
   <button onclick="handleClick()">Send 'Em Packing</button>
   <button onclick="forgiveDebt()">🙏 Forgive Debt</button>
+  <button onclick="toggleSound()">🔊 Toggle Sound</button>
 
   <div id="overlay"></div>
   <div id="gameOver"></div>
 
+  <audio id="scream" src="https://actions.google.com/sounds/v1/human_voices/wilhelm_scream.ogg"></audio>
+  <audio id="siren" src="https://actions.google.com/sounds/v1/emergency/police_siren.ogg"></audio>
+  <audio id="lalSound" src="https://actions.google.com/sounds/v1/human_voices/female_oops.ogg"></audio>
   <audio id="doomBell" src="https://actions.google.com/sounds/v1/alarms/dark_bell.ogg"></audio>
+  <audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
 
   <script>
-    let count = 0;
-    let money = 0;
-    let trauma = 0;
-
-    const jesseEl = document.getElementById("jesse");
-    const clientEl = document.getElementById("client");
-
-    const excuses = [
-  "I invested in a haunted timeshare.",
-  "I paid a psychic to tell me not to pay you.",
-  "I bought a cursed amulet on Etsy.",
-  "I traded your check for a rare pigeon.",
-  "I gave the money to an ex who faked his death.",
-  "I sponsored a pyramid scheme for dogs.",
-  "I used it to fund a bootleg wine tasting in my shed.",
-  "I paid another Jesse.",
-  "I hired a clown lawyer.",
-  "I lost it all at the county fair’s illegal blackjack table.",
-  "I bought 50 candles shaped like ducks.",
-  "I gave it to a motivational speaker at Arby’s.",
-  "I mailed it to a pen pal in prison.",
-  "I funded a documentary about myself.",
-  "I thought it was Monopoly money.",
-  "I bought art from a toddler.",
-  "I started a cult and paid myself.",
-  "I gave it to a pyramid scheme for ferrets.",
-  "I sponsored a possum racing league.",
-  "I spent it all on perfume that smells like ambition.",
-  "I invested in invisible real estate.",
-  "I buried it for luck.",
-  "I paid my therapist to help me stop paying you.",
-  "I gave it to a psychic on Groupon.",
-  "I hired a private mime.",
-  "I paid a guy to teach me telepathy.",
-  "I enrolled in clown college.",
-  "I backed a startup that delivers tacos via drone hawks.",
-  "I bought a boat but live in Kansas.",
-  "I traded it for beans. Not magic. Just beans.",
-  "I burned it as a sacrifice to Mercury.",
-  "I blew it on fireworks for my dog’s birthday.",
-  "I got it turned into a top hat.",
-  "I joined a llama cooperative.",
-  "I needed it to impress a barista.",
-  "I launched a podcast about air.",
-  "I ran for office in a town I don’t live in.",
-  "I used it to buy back my dignity.",
-  "I lost it during my juice cleanse.",
-  "I bought antique spoons with bad energy.",
-  "I needed exact change for emotional closure.",
-  "I tipped a magician with it.",
-  "I gave it to my imaginary friend.",
-  "I paid an influencer to ghost me.",
-  "I funded a rat sanctuary.",
-  "I bartered it for soap at a renaissance fair.",
-  "I buried it in a time capsule marked 'never'."
-];
-
-    const jesseQuotes = [
-      "Ha!", "Welcome to the clown show.", "Baby gotta eat.", "Santos Walker strikes again.", "Just one more paycheck.",
-      "Stop breaking the law, asshole.", "Next time sell more drugs.", "I should have been a doctor.", "I need a real job.",
-      "This is why my children don’t respect me.", "Have you seen my convertible?", "This suit is tight.",
-      "I can’t afford a skinny paralegal.", "We huddle in one room and split our sandwiches because of bums like you.",
-      "I’m sorry you find my fees inconvenient.", "Who even are you?", "I’m assuming you’re guilty anyway.",
-      "Billy deserves better than this.", "Lal deserves better than this.", "Erin deserves better than this.",
-      "Carolina deserves better than this.", "Does Yaretzy still work here?", "...so, so hungry"
-    ];
-
-    const traumaStories = [
-      "I once wore wet socks for three days because I didn’t want to upset my grandma.",
-      "My only birthday gift one year was a firm handshake.",
-      "I thought a bee was my pet. Then it stung me.",
-      "I lost my lunch money in a staring contest.",
-      "I had to pretend I liked raisins for five years.",
-      "My dad said I could be anything, so I became disappointing.",
-      "We shared one pencil in a family of five.",
-      "My favorite toy was a bottle cap named Greg.",
-      "I got detention for hugging a tree.",
-      "I cried once because the wind was too aggressive."
-    ];
-
-    const highScoreEl = document.getElementById("highScore");
-    let highScore = localStorage.getItem("excuseHighScore") || 0;
-    highScoreEl.innerText = `High Score: ${highScore} excuses`;
-
-    function updateHighScore() {
-      if (count > highScore) {
-        highScore = count;
-        localStorage.setItem("excuseHighScore", highScore);
-      }
-      highScoreEl.innerText = `High Score: ${highScore} excuses`;
+    let soundOn = true;
+    function toggleSound() {
+      soundOn = !soundOn;
+      alert(`Sound is now ${soundOn ? 'ON' : 'OFF'}`);
     }
-
-    function handleClick() {
-      count++;
-      money += 500;
-      document.getElementById("counter").innerText = `Excuses heard: ${count}`;
-      document.getElementById("moneyMeter").innerText = `Money Owed: $${money.toLocaleString()}`;
-
-      const excuse = excuses[Math.floor(Math.random() * excuses.length)];
-      document.getElementById("excuseBox").innerText = `Client: "${excuse}"`;
-
-      if (count % 10 === 0 && (count / 10) - 1 < jesseQuotes.length) {
-        const quote = jesseQuotes[(count / 10) - 1];
-        document.getElementById("quoteBox").innerText = `Jesse: "${quote}"`;
-        jesseEl.classList.add("animateJesse");
-        setTimeout(() => jesseEl.classList.remove("animateJesse"), 500);
+    function playSound(id) {
+      if (!soundOn) return;
+      const el = document.getElementById(id);
+      if (el) {
+        el.currentTime = 0;
+        el.play();
       }
-
-      if (Math.random() < 0.5) {
-        const stamp = document.createElement("div");
-        stamp.className = "straightToJail";
-        stamp.innerText = "🚔 STRAIGHT TO JAIL!!!";
-        document.getElementById("gameArea").appendChild(stamp);
-        setTimeout(() => stamp.remove(), 1500);
-      }
-
-      updateHighScore();
-    }
-
-    function forgiveDebt() {
-      const rand = Math.random();
-      if (rand < 0.4) {
-        const lalQuotes = [
-          "I can’t go back to selling feet pics!!!!",
-          "No more appetizers???!!!!????",
-          "That’s ok, I didn’t like money anyway.",
-          "We shared one breadstick for dinner last night.",
-          "Do you know how expensive bubble tea is now??",
-          "You gave up my poke bowl for *this*?",
-          "I was saving up for sauce on my noodles.",
-          "We split a single mozzarella stick yesterday.",
-          "Our grocery list just says: ‘hope.’"
-        ];
-        const quote = lalQuotes[Math.floor(Math.random() * lalQuotes.length)];
-        const overlay = document.getElementById("overlay");
-        overlay.style.display = "flex";
-        overlay.innerHTML = `<div style='font-size:200px;'>🧕</div><div style='margin-top:20px;font-size:28px;'>${quote}</div><div style='font-size:16px;margin-top:10px;color:#888;'>(Her shirt reads: \"We Need Money to Eat!\")</div>`;
-        setTimeout(() => overlay.style.display = "none", 5000);
-      } else {
-        trauma++;
-        document.getElementById("traumaMeter").innerText = `Trauma Meter: ${trauma}`;
-        const story = traumaStories[(trauma - 1) % traumaStories.length];
-        const overlay = document.getElementById("overlay");
-        overlay.style.display = "flex";
-        overlay.innerHTML = `<div style='font-size:120px;'>🧒</div><div style='margin-top:20px;font-size:24px;'>Billy: “This reminds me of when ${story}”</div>`;
-        setTimeout(() => overlay.style.display = "none", 6000);
-
-        if (trauma >= 10) {
-          triggerGameOver();
-        }
-      }
-    }
-
-    function triggerGameOver() {
-      const bell = document.getElementById("doomBell");
-      if (bell) bell.play();
-
-      const gameOver = document.getElementById("gameOver");
-      gameOver.classList.add("carolinaDrop");
-      gameOver.style.display = "flex";
-      gameOver.innerHTML = `
-        <div style='font-size:24px;'>Billy died.<br>Lal quit.<br>Erin went back to interior decorating.<br>Jesse was never heard from again.</div>
-        <div style='font-size:60px; margin-top:20px;'>🧕 “Adiós, payasos!”</div>
-      `;
     }
   </script>
 </body>
