@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Excuse Clicker: Jesse's Justice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #0f0;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-top: 30px;
+    }
+
+    #gameArea {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      width: 95%;
+      max-width: 1000px;
+      margin: 30px auto;
+    }
+
+    .sprite {
+      width: 160px;
+      height: 160px;
+      background-color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      border: 4px solid #0f0;
+    }
+
+    #excuseBox, #quoteBox, #moneyMeter {
+      margin: 15px;
+      padding: 20px;
+      max-width: 95%;
+      background: #111;
+      border: 3px dashed #0ff;
+      color: #0ff;
+      font-size: 16px;
+    }
+
+    button {
+      margin: 10px;
+      font-size: 18px;
+      padding: 20px 40px;
+      background-color: #222;
+      border: 3px solid #0f0;
+      color: #0f0;
+    }
+
+    .flash {
+      animation: flash 0.3s alternate 4;
+    }
+
+    @keyframes flash {
+      from { background-color: #111; }
+      to { background-color: #f00; color: #fff; }
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .caseBox {
+      width: 120px;
+      height: 120px;
+      background: #333;
+      color: #fff;
+      font-size: 30px;
+      border: 3px solid #0ff;
+      margin: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #resultText {
+      color: #0ff;
+      font-size: 20px;
+      margin-top: 30px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Excuse Clicker: Jesse's Justice</h1>
+
+  <div id="counter">Excuses heard: 0</div>
+  <div id="moneyMeter">Money Owed: $0</div>
+
+  <div id="gameArea">
+    <div class="sprite" id="jesse">🧑‍⚖️</div>
+    <div class="sprite" id="client">🧍</div>
+  </div>
+
+  <div id="excuseBox">Client: "My cousin borrowed the money."</div>
+  <div id="quoteBox">Jesse: ""</div>
+  <button onclick="handleClick()">Send 'Em Packing</button>
+  <button onclick="forgiveDebt()">🙏 Forgive Debt</button>
+
+  <audio id="scream" src="https://actions.google.com/sounds/v1/human_voices/wilhelm_scream.ogg"></audio>
+  <audio id="siren" src="https://actions.google.com/sounds/v1/emergency/police_siren.ogg"></audio>
+  <audio id="lalSound" src="https://actions.google.com/sounds/v1/human_voices/female_oops.ogg"></audio>
+  <audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+
+  <!-- Plea Bargain Mini Game -->
+  <div id="overlay">
+    <div style="color:#fff;font-size:22px;">🎲 Plea Bargain Shuffle! Choose wisely:</div>
+    <div style="display: flex;">
+      <div class="caseBox" onclick="chooseCase('box1')">📁</div>
+      <div class="caseBox" onclick="chooseCase('box2')">📁</div>
+      <div class="caseBox" onclick="chooseCase('box3')">📁</div>
+    </div>
+    <div id="resultText"></div>
+  </div>
+
+  <script>
+    let count = 0;
+    let money = 0;
+    let soundOn = true;
+
+    function playSound(id) {
+      if (soundOn) {
+        const el = document.getElementById(id);
+        el.currentTime = 0;
+        el.play();
+      }
+    }
+
+    function forgiveDebt() {
+      const lalQuotes = [
+        "I can’t go back to selling feet pics!!!!",
+        "No more appetizers???!!!!????",
+        "That’s ok, I didn’t like money anyway.",
+        "We shared one breadstick for dinner last night.",
+        "Do you know how expensive bubble tea is now??",
+        "You gave up my poke bowl for *this*?",
+        "I was saving up for sauce on my noodles.",
+        "We split a single mozzarella stick yesterday.",
+        "Our grocery list just says: ‘hope.’"
+      ];
+      const quote = lalQuotes[Math.floor(Math.random() * lalQuotes.length)];
+      const overlay = document.createElement('div');
+      overlay.style = `position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f0f;font-size:24px;text-align:center;`;
+      overlay.innerHTML = `<div style='font-size:200px;'>👧</div><div style='margin-top:20px;font-size:28px;'>${quote}</div><div style='font-size:16px;margin-top:10px;color:#888;'>(Her shirt reads: "We Need Money to Eat!")</div>`;
+      document.body.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 5000);
+    }
+
+    const excuses = [
+      "My cousin borrowed the money.", "I paid you in cash last week.", "I thought the first consult was free... again.",
+      "My dog has a retainer.", "My car exploded.", "I got kidnapped by clowns.", "I paid another Jesse.",
+      "Lal said it was okay.", "I spent it all on candles shaped like ducks.", "I gave it to a motivational speaker at Arby’s.",
+      "I bought 50 copies of my own mixtape.", "I mailed it to a pen pal in prison.", "I funded a documentary about myself.",
+      "I thought it was Monopoly money.", "I bought art from a toddler.", "I started a cult and paid myself.",
+      "I gave it to a pyramid scheme for ferrets.", "I used it to sponsor a possum racing league.",
+      "I spent it all on perfume that smells like ambition.", "I invested in invisible real estate.",
+      "I buried it for luck.", "I paid my therapist to help me stop paying you.", "I gave it to a psychic on Groupon.",
+      "I used it to hire a private mime.", "I paid a guy to teach me telepathy.", "I enrolled in clown college.",
+      "I backed a startup that delivers tacos via drone hawks.", "I bought a boat but live in Kansas.",
+      "I traded it for beans. Not magic. Just beans.", "I burned it as a sacrifice to Mercury.",
+      "I blew it on fireworks for my dog’s birthday.", "I got it turned into a top hat.", "I joined a llama cooperative.",
+      "I needed it to impress a barista.", "I launched a podcast about air.", "I ran for office in a town I don’t live in.",
+      "I used it to buy back my dignity.", "I lost it during my juice cleanse.", "I bought antique spoons with bad energy.",
+      "I needed exact change for emotional closure.", "I tipped a magician with it.", "I gave it to my imaginary friend.",
+      "I paid an influencer to ghost me.", "I funded a rat sanctuary.", "I bartered it for soap at a renaissance fair.",
+      "I buried it in a time capsule marked 'never'."
+    ];
+
+    const jesseQuotes = [
+      "Ha!", "Welcome to the clown show.", "Baby gotta eat.", "Santos Walker strikes again.", "Just one more paycheck.",
+      "Stop breaking the law, asshole.", "Next time sell more drugs.", "I should have been a doctor.", "I need a real job.",
+      "This is why my children don’t respect me.", "Have you seen my convertible?", "This suit is tight.",
+      "I can’t afford a skinny paralegal.", "We huddle in one room and split our sandwiches because of bums like you.",
+      "I’m sorry you find my fees inconvenient.", "Who even are you?", "I’m assuming you’re guilty anyway.",
+      "Billy deserves better than this.", "Lal deserves better than this.", "Erin deserves better than this.",
+      "Carolina deserves better than this.", "Does Yaretzy still work here?", "...so, so hungry"
+    ];
+
+    function handleClick() {
+      count++;
+      money += 500;
+      document.getElementById("counter").innerText = `Excuses heard: ${count}`;
+      document.getElementById("moneyMeter").innerText = `Money Owed: $${money.toLocaleString()}`;
+
+      const excuse = excuses[Math.floor(Math.random() * excuses.length)];
+      document.getElementById("excuseBox").innerText = `Client: "${excuse}"`;
+
+      playSound("clickSound");
+
+      if (count % 10 === 0 && (count / 10) - 1 < jesseQuotes.length) {
+        const quote = jesseQuotes[(count / 10) - 1];
+        const quoteBox = document.getElementById("quoteBox");
+        quoteBox.innerText = `Jesse: "${quote}"`;
+        quoteBox.classList.add("flash");
+        setTimeout(() => quoteBox.classList.remove("flash"), 600);
+      }
+
+      const roll = Math.random();
+      const client = document.getElementById("client");
+
+      if (roll < 0.33) {
+        client.innerText = "🕳️";
+        playSound("scream");
+      } else if (roll < 0.66) {
+        client.innerText = "🚓";
+        playSound("siren");
+      } else {
+        client.innerText = "👧➡️🧍";
+        document.getElementById("quoteBox").innerText = 'Lal: "We need money to eat!"';
+        playSound("lalSound");
+      }
+
+      setTimeout(() => {
+        client.innerText = "🧍";
+      }, 1500);
+
+      if (count % 25 === 0) {
+        showPleaShuffle();
+      }
+    }
+
+    function showPleaShuffle() {
+      document.getElementById("overlay").style.display = "flex";
+      document.getElementById("resultText").innerText = "";
+    }
+
+    function chooseCase(id) {
+      const outcomes = [
+        { text: "🟩 Dismissed!", quote: "Miracles are real. Apparently." },
+        { text: "🟨 Probation", quote: "Good behavior, bad system." },
+        { text: "🟥 LOL, Jail", quote: "Another satisfied customer." }
+      ];
+      const outcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+      document.getElementById("resultText").innerText = `${outcome.text}\nJesse: \"${outcome.quote}\"`;
+      setTimeout(() => {
+        document.getElementById("overlay").style.display = "none";
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
